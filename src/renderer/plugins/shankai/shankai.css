@@ -1,0 +1,493 @@
+.shankai-root {
+  position: relative;
+  min-height: 100%;
+  height: 100%;
+  padding: 20px 24px 32px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: #e8eaef;
+}
+
+.shankai-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.shankai-theme-aurora .shankai-bg {
+  background: #0a0c14;
+}
+
+.shankai-theme-aurora .shankai-bg::before,
+.shankai-theme-aurora .shankai-bg::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  animation: shankai-aurora-a 22s ease-in-out infinite alternate;
+}
+
+.shankai-theme-aurora .shankai-bg::before {
+  width: 55%;
+  height: 45%;
+  left: -10%;
+  top: -5%;
+  background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+}
+
+.shankai-theme-aurora .shankai-bg::after {
+  width: 50%;
+  height: 50%;
+  right: -8%;
+  bottom: -10%;
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  animation-name: shankai-aurora-b;
+  animation-duration: 18s;
+}
+
+.shankai-theme-cyber-grid .shankai-bg {
+  background-color: #06080f;
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  animation: shankai-grid-drift 40s linear infinite;
+}
+
+.shankai-theme-cyber-grid .shankai-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(34, 211, 238, 0.04) 50%,
+    transparent 100%
+  );
+  animation: shankai-scan 8s ease-in-out infinite;
+}
+
+@keyframes shankai-aurora-a {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(8%, 6%) scale(1.08);
+  }
+}
+
+@keyframes shankai-aurora-b {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(-6%, -8%) scale(1.1);
+  }
+}
+
+@keyframes shankai-grid-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 28px 28px;
+  }
+}
+
+@keyframes shankai-scan {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shankai-theme-aurora .shankai-bg::before,
+  .shankai-theme-aurora .shankai-bg::after,
+  .shankai-theme-cyber-grid .shankai-bg,
+  .shankai-theme-cyber-grid .shankai-bg::after {
+    animation: none;
+  }
+}
+
+.shankai-header,
+.shankai-modules {
+  position: relative;
+  z-index: 1;
+}
+
+.shankai-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.shankai-header.window-drag button {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+.shankai-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.shankai-theme-switch {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.shankai-theme-switch button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #8b92a8;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.shankai-theme-switch button.active {
+  background: rgba(99, 102, 241, 0.25);
+  color: #e8eaef;
+}
+
+.shankai-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  overflow: visible;
+}
+
+.shankai-module,
+.shankai-new-module {
+  width: min(320px, 100%);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.shankai-module {
+  position: relative;
+  padding: 14px;
+  overflow: visible;
+  isolation: isolate;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.shankai-module--menu-open,
+.shankai-module:has(.shankai-app:hover) {
+  z-index: 40;
+}
+
+.shankai-module--menu-open {
+  z-index: 50;
+}
+
+.shankai-module--drop-target {
+  border-color: rgba(34, 211, 238, 0.65);
+  box-shadow:
+    0 0 0 2px rgba(34, 211, 238, 0.25),
+    0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.shankai-module-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.shankai-module-name {
+  border: none;
+  background: none;
+  color: #e8eaef;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+.shankai-rename-input {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #e8eaef;
+  font-size: 14px;
+}
+
+.shankai-module-actions {
+  position: relative;
+  display: flex;
+  gap: 4px;
+  z-index: 2;
+}
+
+.shankai-icon-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #c4c9d8;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.shankai-icon-btn:hover {
+  background: rgba(99, 102, 241, 0.2);
+  color: #fff;
+}
+
+.shankai-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 120px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #1e2230;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  z-index: 100;
+}
+
+.shankai-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: #e8eaef;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.shankai-menu button:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.shankai-menu button.danger {
+  color: #f87171;
+}
+
+.shankai-module-empty {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.shankai-apps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 10px;
+}
+
+.shankai-app {
+  position: relative;
+  z-index: 0;
+}
+
+.shankai-app:hover {
+  z-index: 10;
+}
+
+.shankai-app-launch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 6px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #e8eaef;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.shankai-app-launch:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.shankai-app-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.shankai-app-icon-fallback {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: #6366f1;
+}
+
+.shankai-app-name {
+  font-size: 11px;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shankai-app-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(15, 18, 28, 0.92);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #f87171;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  z-index: 20;
+  transition: opacity 0.15s;
+  pointer-events: auto;
+}
+
+.shankai-app:hover .shankai-app-remove,
+.shankai-app:focus-within .shankai-app-remove {
+  opacity: 1;
+}
+
+.shankai-new-module {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 140px;
+  border-style: dashed;
+  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(255, 255, 255, 0.02);
+  color: #8b92a8;
+  cursor: pointer;
+}
+
+.shankai-new-module:hover {
+  border-color: rgba(99, 102, 241, 0.55);
+  color: #c4c9d8;
+}
+
+.shankai-new-module-plus {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.shankai-empty-global {
+  width: 100%;
+  text-align: center;
+  padding: 48px 20px;
+  color: #8b92a8;
+}
+
+.shankai-empty-hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.shankai-btn-primary {
+  margin-top: 12px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.35);
+  color: #fff;
+  cursor: pointer;
+}
+
+.shankai-btn-primary:hover {
+  background: rgba(99, 102, 241, 0.5);
+}
+
+.shankai-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.shankai-dialog {
+  min-width: 280px;
+  padding: 20px;
+  border-radius: 12px;
+  background: #1a1d27;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shankai-dialog p {
+  margin: 0 0 16px;
+}
+
+.shankai-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.shankai-dialog-actions button {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e8eaef;
+  cursor: pointer;
+}
+
+.shankai-dialog-actions button.danger {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.shankai-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: #1e2230;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}

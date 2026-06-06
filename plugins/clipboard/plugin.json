@@ -1,0 +1,22 @@
+{
+  "id": "clipboard",
+  "name": "剪贴板",
+  "version": "1.0.0",
+  "description": "历史记录、搜索与一键粘贴",
+  "capabilities": ["clipboard"],
+  "launchKeywords": [
+    {
+      "id": "clipboard-main",
+      "label": "剪贴板",
+      "actions": [
+        { "id": "open", "label": "打开工具" },
+        { "id": "search", "label": "搜索历史" }
+      ]
+    },
+    {
+      "id": "paste",
+      "label": "粘贴",
+      "actions": [{ "id": "open", "label": "打开工具" }]
+    }
+  ]
+}

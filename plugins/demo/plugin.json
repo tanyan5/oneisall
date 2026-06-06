@@ -1,0 +1,13 @@
+{
+  "id": "demo",
+  "name": "示例工具",
+  "version": "0.1.0",
+  "description": "插件框架占位示例",
+  "launchKeywords": [
+    {
+      "id": "demo-main",
+      "label": "示例",
+      "actions": [{ "id": "open", "label": "打开工具" }]
+    }
+  ]
+}

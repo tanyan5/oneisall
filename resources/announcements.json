@@ -1,0 +1,11 @@
+{
+  "items": [
+    {
+      "id": "v1-home-hub",
+      "title": "主页升级",
+      "summary": "三栏布局、顶栏搜索与右栏推荐已上线。Ctrl+D 可定住窗口。",
+      "publishedAt": "2026-06-04",
+      "expiresAt": "2026-12-31"
+    }
+  ]
+}

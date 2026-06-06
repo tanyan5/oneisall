@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "updatedAt": "2026-06-04T00:00:00Z",
+  "items": [
+    {
+      "id": "welfare-demo",
+      "kind": "welfare",
+      "title": "开源工具箱",
+      "summary": "OneIsAll 持续迭代中，欢迎反馈与共建。",
+      "linkUrl": "https://github.com",
+      "expiresAt": "2026-12-31",
+      "dismissible": true
+    }
+  ]
+}

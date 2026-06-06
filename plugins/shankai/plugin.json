@@ -1,0 +1,22 @@
+{
+  "id": "shankai",
+  "name": "闪开",
+  "version": "1.0.0",
+  "description": "电脑软件快捷启动",
+  "capabilities": ["shankai"],
+  "launchKeywords": [
+    {
+      "id": "shankai-main",
+      "label": "闪开",
+      "actions": [
+        { "id": "open", "label": "打开工具" },
+        { "id": "apps", "label": "管理应用" }
+      ]
+    },
+    {
+      "id": "launch",
+      "label": "启动",
+      "actions": [{ "id": "open", "label": "打开工具" }]
+    }
+  ]
+}

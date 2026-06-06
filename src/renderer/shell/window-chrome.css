@@ -1,0 +1,95 @@
+.window-chrome {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 40px;
+  padding: 0 8px 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.window-chrome-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.window-chrome-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.window-chrome-tool-icon {
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.window-chrome-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.window-chrome-center {
+  flex: 1;
+  min-width: 0;
+}
+
+.window-chrome-center input[type='search'],
+.window-chrome-center input[type='text'] {
+  width: 100%;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.window-chrome-center input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.window-chrome-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.window-chrome-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.window-chrome-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.window-chrome-pin.active {
+  color: var(--text);
+}
+
+.window-chrome-close:hover {
+  background: rgba(239, 68, 68, 0.85);
+  color: #fff;
+}

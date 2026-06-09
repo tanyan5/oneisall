@@ -1,8 +1,7 @@
 import { app, BrowserWindow, nativeImage, shell } from 'electron'
 
-import fs from 'fs'
-
 import path from 'path'
+import { resolveResource } from './appPaths'
 
 
 
@@ -31,33 +30,13 @@ function broadcastPinState(): void {
 
 
 function resolveAppIconPath(): string | undefined {
-
   const names = ['icon.ico', 'tray/tray-32.png', 'tray/tray.png']
-
-  const bases = [
-
-    path.join(process.cwd(), 'resources'),
-
-    path.join(app.getAppPath(), 'resources'),
-
-    path.join(process.resourcesPath)
-
-  ]
-
-  for (const base of bases) {
-
-    for (const name of names) {
-
-      const p = path.join(base, name)
-
-      if (fs.existsSync(p)) return p
-
-    }
-
+  for (const name of names) {
+    const segments = name.split('/')
+    const p = resolveResource(...segments)
+    if (p) return p
   }
-
   return undefined
-
 }
 
 

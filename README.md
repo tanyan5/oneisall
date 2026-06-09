@@ -86,8 +86,12 @@ npm run dist
 
 ## 数据位置
 
-- 数据库：`%APPDATA%/OneIsAll/data/clipboard.db`
-- 图片缓存：`%APPDATA%/OneIsAll/data/images/`
+- 正式版用户数据：`%APPDATA%/OneIsAll/`（剪贴板数据库、设置、闪开配置等）
+- 开发模式用户数据：`%APPDATA%/OneIsAll-dev/`（与正式版隔离，避免本地测试数据出现在安装包运行结果中）
+
+具体文件（均在 `%APPDATA%/OneIsAll/` 下）：
+
+- 数据库：`data/clipboard.db`
 - 设置（最近使用工具、固定搜索关键字等）：`%APPDATA%/OneIsAll/settings.json`
 - 闪开（模块与应用快捷方式）：`%APPDATA%/OneIsAll/data/shankai.json`
 

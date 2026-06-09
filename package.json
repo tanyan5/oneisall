@@ -1,6 +1,6 @@
 {
   "name": "oneisall",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Windows system toolbox with pluggable tools",
   "main": "./out/main/index.js",
   "author": "tanyan",
@@ -54,6 +54,11 @@
         "from": "resources/tray",
         "to": "tray",
         "filter": ["**/*"]
+      },
+      {
+        "from": "resources",
+        "to": ".",
+        "filter": ["promo.json", "announcements.json", "icon.ico"]
       }
     ],
     "win": {

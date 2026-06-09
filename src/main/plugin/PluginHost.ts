@@ -4,6 +4,7 @@ import { app } from 'electron'
 import type { PluginManifest, ToolMeta } from '../../shared/types'
 import type { IToolPlugin, PluginHostContext } from './types'
 import type { ToolIconService } from '../icons/ToolIconService'
+import { getBuiltinPluginDirs } from '../appPaths'
 import { ClipboardPlugin } from '../../../plugins/clipboard/main'
 import { ShankaiPlugin } from '../../../plugins/shankai/main'
 
@@ -22,14 +23,9 @@ export class PluginHost {
   }
 
   private getPluginDirs(): string[] {
-    const dirs: string[] = []
-    const builtin = path.join(app.getAppPath(), 'plugins')
-    const devBuiltin = path.join(process.cwd(), 'plugins')
     const userDir = path.join(app.getPath('userData'), 'plugins')
-
-    for (const d of [devBuiltin, builtin, userDir]) {
-      if (fs.existsSync(d)) dirs.push(d)
-    }
+    const dirs = [...getBuiltinPluginDirs()]
+    if (fs.existsSync(userDir)) dirs.push(userDir)
     return [...new Set(dirs)]
   }
 

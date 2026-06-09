@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { app } from 'electron'
+import { resolveResource } from '../appPaths'
 import type { AnnouncementItem } from '../../shared/home'
 
 interface AnnouncementsFile {
@@ -9,12 +10,8 @@ interface AnnouncementsFile {
 
 function resolvePaths(): string[] {
   const userPath = path.join(app.getPath('userData'), 'announcements.json')
-  const bundledPaths = [
-    path.join(process.cwd(), 'resources', 'announcements.json'),
-    path.join(app.getAppPath(), 'resources', 'announcements.json'),
-    path.join(process.resourcesPath, 'announcements.json')
-  ]
-  return [userPath, ...bundledPaths]
+  const bundled = resolveResource('announcements.json')
+  return bundled ? [userPath, bundled] : [userPath]
 }
 
 function isActive(item: AnnouncementItem, now: number): boolean {

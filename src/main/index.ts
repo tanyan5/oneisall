@@ -45,6 +45,9 @@ import { initShankaiStore, getShankaiStore } from './shankai'
 import { buildLauncherSearchItems, getMergedLauncherRecent } from './shankai/launcherMerge'
 import { launchTarget } from './shankai/ShankaiLauncher'
 import { ToolIconService } from './icons/ToolIconService'
+import { configureAppPaths, resolveResource } from './appPaths'
+
+configureAppPaths()
 
 let store: ClipboardStore
 let watcher: ClipboardWatcher
@@ -214,18 +217,11 @@ function registerIpc(): void {
 
   ipcMain.handle('launcher:getBrandIcon', () => {
     const names = ['tray-32.png', 'tray.png', 'tray-16.png']
-    const bases = [
-      path.join(process.cwd(), 'resources', 'tray'),
-      path.join(app.getAppPath(), 'resources', 'tray'),
-      path.join(process.resourcesPath, 'tray')
-    ]
-    for (const base of bases) {
-      for (const name of names) {
-        const p = path.join(base, name)
-        if (fs.existsSync(p)) {
-          const buf = fs.readFileSync(p)
-          return `data:image/png;base64,${buf.toString('base64')}`
-        }
+    for (const name of names) {
+      const p = resolveResource('tray', name)
+      if (p) {
+        const buf = fs.readFileSync(p)
+        return `data:image/png;base64,${buf.toString('base64')}`
       }
     }
     return null

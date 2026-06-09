@@ -33,7 +33,7 @@ Register new React views in `ToolboxShell` → `PLUGIN_VIEWS`.
 
 - TypeScript strict mode
 - New tools: add `plugins/<id>/plugin.json`, optional `main.ts`, renderer view, and map in `PLUGIN_VIEWS`
-- User data lives under `%APPDATA%/OneIsAll/` (not in repo)
+- User data lives under `%APPDATA%/OneIsAll/` (production) or `%APPDATA%/OneIsAll-dev/` (dev)
 - Manual QA checklist: `TESTING.md`
 
 ## Default shortcuts

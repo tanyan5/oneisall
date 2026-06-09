@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { app } from 'electron'
+import { resolveResource } from '../appPaths'
 import type { PromoItem } from '../../shared/home'
 
 interface PromoFile {
@@ -14,12 +15,8 @@ const REMOTE_URL = process.env.ONEISALL_PROMO_URL ?? ''
 
 function resolveLocalPaths(): string[] {
   const userPath = path.join(app.getPath('userData'), 'promo.json')
-  const bundledPaths = [
-    path.join(process.cwd(), 'resources', 'promo.json'),
-    path.join(app.getAppPath(), 'resources', 'promo.json'),
-    path.join(process.resourcesPath, 'promo.json')
-  ]
-  return [userPath, ...bundledPaths]
+  const bundled = resolveResource('promo.json')
+  return bundled ? [userPath, bundled] : [userPath]
 }
 
 function cachePath(): string {

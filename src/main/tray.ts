@@ -1,10 +1,6 @@
 import { app, Menu, Tray, nativeImage } from 'electron'
-
-import fs from 'fs'
-
-import path from 'path'
-
 import { forceQuitWindow } from './window'
+import { resolveResource } from './appPaths'
 
 export interface TrayHandlers {
   onShowLauncher: () => void
@@ -15,16 +11,9 @@ let tray: Tray | null = null
 
 function resolveTrayIconPath(): string | null {
   const names = ['tray-32.png', 'tray.png', 'tray-16.png']
-  const bases = [
-    path.join(process.cwd(), 'resources', 'tray'),
-    path.join(app.getAppPath(), 'resources', 'tray'),
-    path.join(process.resourcesPath, 'tray')
-  ]
-  for (const base of bases) {
-    for (const name of names) {
-      const p = path.join(base, name)
-      if (fs.existsSync(p)) return p
-    }
+  for (const name of names) {
+    const p = resolveResource('tray', name)
+    if (p) return p
   }
   return null
 }

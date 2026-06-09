@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
-import { app, nativeImage } from 'electron'
+import { nativeImage } from 'electron'
+import { resolveResource } from '../appPaths'
 import type { PluginManifest } from '../../shared/types'
 import { createLetterIconDataUrl } from './letterIcon'
 
@@ -53,16 +54,7 @@ export class ToolIconService {
   }
 
   private resolveNavIconPath(id: string): string | null {
-    const name = `${id}.png`
-    const candidates = [
-      path.join(process.cwd(), 'resources', 'nav', name),
-      path.join(app.getAppPath(), 'resources', 'nav', name),
-      path.join(process.resourcesPath, 'nav', name)
-    ]
-    for (const p of candidates) {
-      if (fs.existsSync(p)) return p
-    }
-    return null
+    return resolveResource('nav', `${id}.png`)
   }
 
   private resolvePluginIconPath(dir: string, manifest?: PluginManifest): string | null {

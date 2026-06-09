@@ -165,10 +165,16 @@ export function ClipboardView({
 
   const activeItem = items.find((i) => i.id === activeId) ?? null
 
-  const handleCopy = useCallback(async (id: string): Promise<void> => {
+  const handleCopy = useCallback(async (id: string, options?: { dismiss?: boolean }): Promise<void> => {
     const ok = await window.toolbox.clipboard.copyToSystem(id)
-    if (ok) showToast('已复制到剪贴板，在目标处按 Ctrl+V 粘贴')
-    else showToast('复制失败')
+    if (ok) {
+      showToast('已复制到剪贴板，在目标处按 Ctrl+V 粘贴')
+      if (options?.dismiss) {
+        await window.toolbox.window.hide()
+      }
+    } else {
+      showToast('复制失败')
+    }
     setActiveId(id)
   }, [])
 
@@ -335,7 +341,7 @@ export function ClipboardView({
         const currentId = activeIdRef.current
         if (!currentId) return
         e.preventDefault()
-        void handleCopy(currentId)
+        void handleCopy(currentId, { dismiss: true })
         return
       }
 

@@ -9,6 +9,8 @@ export interface WindowPinState {
 export function useWindowPin(): {
   pinState: WindowPinState
   togglePin: () => Promise<void>
+  syncPinState: () => Promise<void>
+  applyPinState: (state: WindowPinState) => void
   setAlwaysOnTop: (flag: boolean) => Promise<void>
   minimize: () => Promise<void>
   maximize: () => Promise<void>
@@ -32,6 +34,14 @@ export function useWindowPin(): {
     return window.toolbox.window.onPinStateChanged((state) => setPinState(state))
   }, [refresh])
 
+  const applyPinState = useCallback((state: WindowPinState) => {
+    setPinState(state)
+  }, [])
+
+  const syncPinState = useCallback(async () => {
+    await refresh()
+  }, [refresh])
+
   const togglePin = useCallback(async () => {
     if (!window.toolbox?.window?.togglePin) return
     await window.toolbox.window.togglePin()
@@ -41,6 +51,8 @@ export function useWindowPin(): {
   return {
     pinState,
     togglePin,
+    syncPinState,
+    applyPinState,
     setAlwaysOnTop: (flag) => window.toolbox.window.setAlwaysOnTop(flag),
     minimize: () => window.toolbox.window.minimize(),
     maximize: () => window.toolbox.window.maximize(),

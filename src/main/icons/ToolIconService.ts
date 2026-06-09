@@ -12,7 +12,8 @@ const LETTER_COLORS: Record<string, string> = {
   settings: '#64748b',
   clipboard: '#3b82f6',
   shankai: '#a855f7',
-  demo: '#22c55e'
+  demo: '#22c55e',
+  md2docx: '#fbbf24'
 }
 
 export class ToolIconService {

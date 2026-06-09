@@ -7,6 +7,7 @@ import type { ToolIconService } from '../icons/ToolIconService'
 import { getBuiltinPluginDirs } from '../appPaths'
 import { ClipboardPlugin } from '../../../plugins/clipboard/main'
 import { ShankaiPlugin } from '../../../plugins/shankai/main'
+import { Md2DocxPlugin } from '../../../plugins/md2docx/main'
 
 export class PluginHost {
   private tools = new Map<string, ToolMeta>()
@@ -91,6 +92,15 @@ export class PluginHost {
       enabled: true,
       builtin: true
     })
+
+    this.registerBuiltinTool('md2docx', {
+      id: 'md2docx',
+      name: 'Markdown 转 Word',
+      version: '1.0.0',
+      description: '将 Markdown 文件转换为 Word 文档',
+      enabled: true,
+      builtin: true
+    })
   }
 
   private registerBuiltinTool(id: string, meta: ToolMeta): void {
@@ -121,6 +131,9 @@ export class PluginHost {
 
     const shankai = new ShankaiPlugin()
     this.plugins.set(shankai.id, shankai)
+
+    const md2docx = new Md2DocxPlugin()
+    this.plugins.set(md2docx.id, md2docx)
 
     for (const [id, meta] of this.tools) {
       if (!meta.enabled) continue

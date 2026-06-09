@@ -1,0 +1,23 @@
+{
+  "id": "md2docx",
+  "name": "Markdown 转 Word",
+  "version": "1.0.0",
+  "description": "将 Markdown 文件转换为 Word 文档",
+  "launchKeywords": [
+    {
+      "id": "md2docx-main",
+      "label": "Markdown 转 Word",
+      "actions": [{ "id": "open", "label": "打开工具" }]
+    },
+    {
+      "id": "markdown",
+      "label": "Markdown",
+      "actions": [{ "id": "open", "label": "打开工具" }]
+    },
+    {
+      "id": "docx",
+      "label": "转 Word",
+      "actions": [{ "id": "open", "label": "打开工具" }]
+    }
+  ]
+}

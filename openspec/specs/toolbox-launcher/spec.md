@@ -18,16 +18,32 @@ The launcher overlay SHALL be movable by mouse drag despite using a frameless wi
 
 The system SHALL provide a lightweight launcher overlay window that can be toggled via the configured `openLauncher` global shortcut, tray double-click, or tray **显示** menu item. The overlay SHALL be separate from the main toolbox window, SHALL be always on top when visible, and SHALL receive keyboard focus when opened. The overlay window height SHALL be content-adaptive within configured minimum and maximum bounds (see adaptive height requirement). The overlay SHALL close when the user clicks outside the launcher panel or when the overlay window loses focus, in addition to Escape and the toggle shortcut.
 
+When the hub window is visible showing an **unpinned** plugin tool view, the `openLauncher` global shortcut SHALL take precedence over overlay toggle and SHALL dismiss the hub session per the toolbox navigation requirement without opening the launcher overlay.
+
+When a dismissed unpinned plugin session is pending restore, the `openLauncher` global shortcut SHALL restore that plugin on the hub window instead of toggling the launcher overlay.
+
+Tray double-click and tray **显示** SHALL continue to open the launcher overlay directly and SHALL NOT trigger hub-session dismiss or restore.
+
 When the launcher is shown—including when returning from the main window via navigation—the overlay SHALL NOT display a visible white flash before themed content appears. The host SHALL use a themed window background color matching the launcher panel and SHALL show the window only after content is ready to paint.
 
-#### Scenario: Open launcher via global shortcut
+#### Scenario: Open launcher via global shortcut when idle
 
-- **WHEN** user presses the configured openLauncher global shortcut
+- **WHEN** user presses the configured openLauncher global shortcut and no unpinned plugin dismiss or restore applies
 - **THEN** the launcher overlay is shown and the search field is focused without a white flash
+
+#### Scenario: openLauncher dismisses hub plugin instead of overlay
+
+- **WHEN** the hub window shows an unpinned plugin and user presses openLauncher
+- **THEN** the hub window is hidden, the tool id is remembered for restore, and the launcher overlay is not shown
+
+#### Scenario: openLauncher restores hub plugin instead of overlay
+
+- **WHEN** a dismissed unpinned plugin session is pending and user presses openLauncher
+- **THEN** the hub window reopens on that plugin unpinned and the launcher overlay is not shown
 
 #### Scenario: Return to launcher from main window
 
-- **WHEN** user navigates back to the launcher from the main window (e.g. Escape)
+- **WHEN** user navigates back to the launcher from the hub window (e.g. Escape from unpinned plugin)
 - **THEN** the launcher appears with themed background immediately without a white frame flash
 
 #### Scenario: Open launcher via tray double-click
@@ -107,19 +123,29 @@ When the user enters a non-empty search query, the launcher SHALL show matching 
 
 ### Requirement: Selecting a tool opens it directly
 
-When the user selects a **toolbox plugin** item from the launcher, the system SHALL record the tool in recent history, hide the launcher overlay, and open the main window on that tool's view without showing Home first. Escape from that tool view SHALL return to the launcher overlay per the main window navigation stack requirement.
+When the user selects a **toolbox plugin** item from the launcher, the system SHALL record the tool in recent history and hide the launcher overlay. If that tool already has a pinned window, the system SHALL focus that pinned window. Otherwise the system SHALL open the tool on the hub window in unpinned immersive layout without showing Home first. Escape from an unpinned hub tool view SHALL return to the launcher overlay per the toolbox navigation stack requirement.
 
 When the user selects a **Shankai application** item from the launcher, the system SHALL launch the application directly, record the launch in merged recent history, and hide the launcher overlay without opening the main window.
 
-#### Scenario: Open tool from launcher
+#### Scenario: Open tool from launcher focuses existing pinned window
 
-- **WHEN** user confirms selection of a toolbox plugin in the launcher
-- **THEN** the launcher hides, recent history is updated, and the main window shows that tool
+- **WHEN** user confirms selection of a toolbox plugin that already has a pinned window
+- **THEN** the launcher hides and the existing pinned window is focused
+
+#### Scenario: Open different tool from launcher while pinned
+
+- **WHEN** user has plugin A pinned on the taskbar and selects plugin B in the launcher
+- **THEN** the launcher hides, plugin A remains pinned, and plugin B opens unpinned on the hub window
+
+#### Scenario: Open tool from launcher unpinned
+
+- **WHEN** user confirms selection of a toolbox plugin with no pinned window
+- **THEN** the launcher hides, recent history is updated, and the hub window shows that tool without shell WindowChrome
 
 #### Scenario: Escape from launcher-opened tool
 
-- **WHEN** user opened a toolbox plugin from the launcher and presses Escape in the main window tool view
-- **THEN** the launcher overlay is shown again with search focused and the main window is hidden
+- **WHEN** user opened a toolbox plugin from the launcher in unpinned mode and presses Escape in the tool view
+- **THEN** the launcher overlay is shown again with search focused and the hub window is hidden
 
 #### Scenario: Open Shankai app from launcher
 

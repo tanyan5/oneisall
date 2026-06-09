@@ -5,6 +5,7 @@ import { splitLauncherSearchResults } from '../../shared/launcherSearch'
 import { ClipboardView } from '../plugins/clipboard/ClipboardView'
 import { DemoView } from '../plugins/demo/DemoView'
 import { ShankaiView } from '../plugins/shankai/ShankaiView'
+import { Md2DocxView } from '../plugins/md2docx/Md2DocxView'
 import { HomeView } from './HomeView'
 import { SettingsView } from './SettingsView'
 import { LazyIcon } from '../components/LazyIcon'
@@ -20,7 +21,8 @@ import './window-chrome.css'
 const PLUGIN_VIEWS: Record<string, React.ComponentType> = {
   clipboard: ClipboardView,
   demo: DemoView,
-  shankai: ShankaiView
+  shankai: ShankaiView,
+  md2docx: Md2DocxView
 }
 
 const IMMERSIVE_IDS = new Set(['settings'])
@@ -29,7 +31,8 @@ const SURFACE_TITLES: Record<string, string> = {
   settings: '设置',
   clipboard: '剪贴板',
   demo: '演示',
-  shankai: '闪开'
+  shankai: '闪开',
+  md2docx: 'Markdown 转 Word'
 }
 
 function renderChromeIcon(toolId: string): React.ReactElement {
@@ -61,7 +64,8 @@ export function ToolboxShell(): React.ReactElement {
   const [clipboardQuery, setClipboardQuery] = useState('')
   const [clipboardCount, setClipboardCount] = useState(0)
   const openKeywordIdRef = useRef<string | null>(null)
-  const { pinState, togglePin, setAlwaysOnTop, minimize, maximize, close } = useWindowPin()
+  const { pinState, togglePin, syncPinState, applyPinState, setAlwaysOnTop, minimize, maximize, close } =
+    useWindowPin()
 
   const loadTools = useCallback(async () => {
     const list = await window.toolbox.tools.list()
@@ -112,15 +116,17 @@ export function ToolboxShell(): React.ReactElement {
   }, [openKeywordId])
 
   useEffect(() => {
-    const unsub = window.toolbox.onNavigateTool((id) => {
+    const unsub = window.toolbox.onNavigateTool((id, nextPinState) => {
       setActiveId(id)
       if (id === 'home') {
         setSearchQuery('')
         setPreviewToolId(null)
       }
+      if (nextPinState) applyPinState(nextPinState)
+      else void syncPinState()
     })
     return unsub
-  }, [])
+  }, [applyPinState, syncPinState])
 
   useEffect(() => {
     void (async () => {
@@ -146,6 +152,10 @@ export function ToolboxShell(): React.ReactElement {
         setOpenKeywordId(null)
         return
       }
+      if (pinState.pinned) {
+        e.preventDefault()
+        return
+      }
       e.preventDefault()
       void window.toolbox.navigation.pop().then((result) => {
         if (result.action === 'navigate') {
@@ -162,7 +172,7 @@ export function ToolboxShell(): React.ReactElement {
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [activeId, togglePin])
+  }, [activeId, pinState.pinned, togglePin])
 
   const trimmedSearch = searchQuery.trim()
   const { primary, secondary } = useMemo(
@@ -234,6 +244,9 @@ export function ToolboxShell(): React.ReactElement {
             onQueryChange={setClipboardQuery}
           />
         )
+      }
+      if (activeId === 'md2docx') {
+        return <Md2DocxView hideTopBar={pinState.pinned} />
       }
       return <View />
     }

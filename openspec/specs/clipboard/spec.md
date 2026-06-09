@@ -26,7 +26,7 @@ When the clipboard list has one or more visible items and no blocking overlay is
 
 While focus is not in the search field or another text input, **Arrow Up** and **Arrow Down** SHALL move the active row highlight to the previous or next item in the list order without copying to the system clipboard. The list SHALL scroll as needed to keep the active row visible.
 
-Pressing **Enter** SHALL copy the active row to the system clipboard (same behavior as the toolbar copy action).
+Pressing **Enter** SHALL copy the active row to the system clipboard (same behavior as the toolbar copy action) and SHALL hide the invoking toolbox window so the user can paste immediately in the target application.
 
 #### Scenario: First item active on open
 
@@ -38,10 +38,10 @@ Pressing **Enter** SHALL copy the active row to the system clipboard (same behav
 - **WHEN** user presses Arrow Down with the active row on the first item
 - **THEN** the second row becomes active and no copy occurs until Enter or an explicit copy action
 
-#### Scenario: Enter copies active row
+#### Scenario: Enter copies active row and dismisses view
 
 - **WHEN** user highlights a row with arrow keys and presses Enter
-- **THEN** that item is copied to the system clipboard and confirmation feedback is shown
+- **THEN** that item is copied to the system clipboard and the toolbox window is hidden so the user can paste with Ctrl+V
 
 #### Scenario: Search input retains typing keys
 

@@ -25,6 +25,7 @@
 |----|-----|-------|
 | `clipboard` | `src/renderer/plugins/clipboard/` | SQLite history, watcher in main process |
 | `shankai` | `src/renderer/plugins/shankai/` | App launcher modules |
+| `md2docx` | `src/renderer/plugins/md2docx/` | Markdown to Word conversion |
 | `demo` | `src/renderer/plugins/demo/` | Sample plugin |
 
 Register new React views in `ToolboxShell` → `PLUGIN_VIEWS`.

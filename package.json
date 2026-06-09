@@ -1,6 +1,6 @@
 {
   "name": "oneisall",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Windows system toolbox with pluggable tools",
   "main": "./out/main/index.js",
   "author": "tanyan",
@@ -14,6 +14,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "@mohtasham/md-to-docx": "^2.12.3",
     "better-sqlite3": "^11.8.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
@@ -43,26 +44,39 @@
       {
         "from": "plugins",
         "to": "plugins",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "resources/nav",
         "to": "nav",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "resources/tray",
         "to": "tray",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "resources",
         "to": ".",
-        "filter": ["promo.json", "announcements.json", "icon.ico"]
+        "filter": [
+          "promo.json",
+          "announcements.json",
+          "icon.ico"
+        ]
       }
     ],
     "win": {
-      "target": ["nsis", "portable"],
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "resources/icon.ico",
       "signAndEditExecutable": false
     },

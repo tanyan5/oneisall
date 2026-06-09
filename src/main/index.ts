@@ -1,23 +1,26 @@
-import { app, dialog, ipcMain, shell } from 'electron'
+import { BrowserWindow, app, dialog, ipcMain, shell, type IpcMainInvokeEvent } from 'electron'
 import { ClipboardStore } from './clipboard/ClipboardStore'
 import { ClipboardWatcher } from './clipboard/ClipboardWatcher'
 import { PluginHost } from './plugin/PluginHost'
 import { createTray, destroyTray } from './tray'
 import {
+  broadcastToAllToolWindows,
+  closeWindow,
+  consumePendingToolForWindow,
   createMainWindow,
+  forceQuitAllWindows,
   getMainWindow,
-  showMainWindow,
-  hideMainWindow,
-  forceQuitWindow,
-  consumePendingTool,
-  togglePin,
-  syncTaskbarIcon,
+  getPinStateForWindow,
+  getSession,
+  getSessionFromWebContents,
+  hideWindow,
+  maximizeWindow,
+  minimizeWindow,
+  setAlwaysOnTopForWindow,
   setToolIconPathResolver,
-  getPinState,
-  setAlwaysOnTop,
-  minimizeMainWindow,
-  maximizeMainWindow,
-  closeMainWindow
+  showMainWindow,
+  syncTaskbarIconForSession,
+  togglePinForWindow
 } from './window'
 import { AnnouncementProvider } from './home/AnnouncementProvider'
 import { PromoProvider } from './home/PromoProvider'
@@ -28,9 +31,9 @@ import {
   destroyLauncherWindow,
   hideLauncher,
   resizeLauncher,
-  showLauncher,
-  toggleLauncher
+  showLauncher
 } from './launcher/LauncherWindow'
+import { handleOpenLauncherShortcut } from './launcher/handleOpenLauncherShortcut'
 import {
   navOpenClipboard,
   navOpenHome,
@@ -42,6 +45,7 @@ import fs from 'fs'
 import path from 'path'
 import type { ClipboardListParams, ClipboardOpResult, ToolMeta } from '../shared/types'
 import { initShankaiStore, getShankaiStore } from './shankai'
+import { initMd2DocxStore } from './md2docx'
 import { buildLauncherSearchItems, getMergedLauncherRecent } from './shankai/launcherMerge'
 import { launchTarget } from './shankai/ShankaiLauncher'
 import { ToolIconService } from './icons/ToolIconService'
@@ -80,24 +84,32 @@ function getRecentToolsMeta(): ToolMeta[] {
   return ids.map((id) => map.get(id)).filter((t): t is ToolMeta => Boolean(t))
 }
 
+function toolWindowFromEvent(event: IpcMainInvokeEvent): BrowserWindow {
+  return BrowserWindow.fromWebContents(event.sender)!
+}
+
 function registerIpc(): void {
   ipcMain.handle('tools:list', () => pluginHost.getTools())
 
-  ipcMain.handle('tools:getActive', () => activeToolId)
+  ipcMain.handle('tools:getActive', (event) => getSessionFromWebContents(event.sender)?.toolId ?? 'home')
 
-  ipcMain.handle('tools:consumePending', () => {
-    const pending = consumePendingTool()
+  ipcMain.handle('tools:consumePending', (event) => {
+    const win = toolWindowFromEvent(event)
+    const pending = consumePendingToolForWindow(win)
     if (pending) activeToolId = pending
     return pending
   })
 
-  ipcMain.handle('tools:setActive', (_e, id: string) => {
+  ipcMain.handle('tools:setActive', (event, id: string) => {
+    const session = getSessionFromWebContents(event.sender)
+    if (session) session.toolId = id
     activeToolId = id
     if (id !== 'home' && id !== 'settings') recordToolUse(id)
   })
 
-  ipcMain.handle('navigation:pop', () => {
-    const result = navPop()
+  ipcMain.handle('navigation:pop', (event) => {
+    const win = toolWindowFromEvent(event)
+    const result = navPop(win)
     if (result.action === 'navigate') {
       activeToolId =
         result.surface === 'home'
@@ -147,25 +159,32 @@ function registerIpc(): void {
     activeToolId = navOpenHome()
   })
 
-  ipcMain.handle('window:hide', () => {
-    hideMainWindow()
+  ipcMain.handle('window:hide', (event) => {
+    hideWindow(toolWindowFromEvent(event))
   })
 
-  ipcMain.handle('window:togglePin', () => togglePin(activeToolId))
-
-  ipcMain.handle('window:syncTaskbarIcon', (_e, toolId: string | null) => {
-    syncTaskbarIcon(toolId)
+  ipcMain.handle('window:togglePin', (event) => {
+    const win = toolWindowFromEvent(event)
+    const session = getSession(win)
+    if (session) activeToolId = session.toolId
+    return togglePinForWindow(win)
   })
 
-  ipcMain.handle('window:getPinState', () => getPinState())
+  ipcMain.handle('window:syncTaskbarIcon', (event, toolId: string | null) => {
+    syncTaskbarIconForSession(toolWindowFromEvent(event), toolId)
+  })
 
-  ipcMain.handle('window:minimize', () => minimizeMainWindow())
+  ipcMain.handle('window:getPinState', (event) => getPinStateForWindow(toolWindowFromEvent(event)))
 
-  ipcMain.handle('window:maximize', () => maximizeMainWindow())
+  ipcMain.handle('window:minimize', (event) => minimizeWindow(toolWindowFromEvent(event)))
 
-  ipcMain.handle('window:close', () => closeMainWindow())
+  ipcMain.handle('window:maximize', (event) => maximizeWindow(toolWindowFromEvent(event)))
 
-  ipcMain.handle('window:setAlwaysOnTop', (_e, flag: boolean) => setAlwaysOnTop(flag))
+  ipcMain.handle('window:close', (event) => closeWindow(toolWindowFromEvent(event)))
+
+  ipcMain.handle('window:setAlwaysOnTop', (event, flag: boolean) => {
+    setAlwaysOnTopForWindow(toolWindowFromEvent(event), flag)
+  })
 
   ipcMain.handle('home:getSearchCatalog', () => {
     const tools = pluginHost.getTools().filter((t) => t.enabled)
@@ -365,12 +384,16 @@ async function bootstrap(): Promise<void> {
   announcementProvider = new AnnouncementProvider()
   promoProvider = new PromoProvider()
   initShankaiStore()
+  initMd2DocxStore()
   shortcutManager = new ShortcutManager(settingsStore, {
     openClipboard: () => {
       recordToolUse('clipboard')
       activeToolId = navOpenClipboard()
     },
-    openLauncher: () => toggleLauncher()
+    openLauncher: () => {
+      const restored = handleOpenLauncherShortcut()
+      if (restored) activeToolId = restored
+    }
   })
   store = new ClipboardStore()
   watcher = new ClipboardWatcher(store)
@@ -380,8 +403,7 @@ async function bootstrap(): Promise<void> {
   registerIpc()
 
   watcher.setOnChange((item) => {
-    const win = getMainWindow()
-    win?.webContents.send('clipboard:changed', item)
+    broadcastToAllToolWindows('clipboard:changed', item)
   })
 
   const win = createMainWindow()
@@ -429,7 +451,7 @@ app.on('before-quit', () => {
   shortcutManager?.unregisterAll()
   destroyLauncherWindow()
   destroyTray()
-  forceQuitWindow()
+  forceQuitAllWindows()
   watcher?.stop()
   void pluginHost?.shutdown()
 })

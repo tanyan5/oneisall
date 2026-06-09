@@ -13,7 +13,7 @@ import type { ShortcutActionId } from '../shared/shortcuts'
 import type { AppSettings } from '../main/settings/SettingsStore'
 import type { AnnouncementItem, HomeSearchCatalog, PromoItem } from '../shared/home'
 import type { LauncherRecentRow } from '../shared/shankai'
-import type { PinState } from '../main/window'
+import type { NavigateToolPayload, PinState } from '../main/window'
 
 import type {
 
@@ -30,6 +30,13 @@ import type {
   ShankaiTheme
 
 } from '../shared/shankai'
+
+import type {
+  Md2DocxConvertRequest,
+  Md2DocxConvertResult,
+  Md2DocxPresetId,
+  Md2DocxRecentEntry
+} from '../shared/md2docx'
 
 
 
@@ -172,6 +179,33 @@ const toolbox = {
 
   },
 
+  md2docx: {
+
+    getPreset: (): Promise<Md2DocxPresetId> => ipcRenderer.invoke('md2docx:getPreset'),
+
+    setPreset: (presetId: Md2DocxPresetId): Promise<void> =>
+      ipcRenderer.invoke('md2docx:setPreset', presetId),
+
+    listRecent: (): Promise<Md2DocxRecentEntry[]> => ipcRenderer.invoke('md2docx:listRecent'),
+
+    pickSource: (): Promise<string | null> => ipcRenderer.invoke('md2docx:pickSource'),
+
+    pickOutput: (defaultPath: string): Promise<string | null> =>
+      ipcRenderer.invoke('md2docx:pickOutput', defaultPath),
+
+    convert: (req: Md2DocxConvertRequest): Promise<Md2DocxConvertResult> =>
+      ipcRenderer.invoke('md2docx:convert', req),
+
+    openFile: (outputPath: string): Promise<void> =>
+      ipcRenderer.invoke('md2docx:openFile', outputPath),
+
+    revealInFolder: (outputPath: string): Promise<void> =>
+      ipcRenderer.invoke('md2docx:revealInFolder', outputPath),
+
+    resolveDroppedFile: (file: File): string => webUtils.getPathForFile(file)
+
+  },
+
   navigation: {
 
     pop: (): Promise<NavPopResult> => ipcRenderer.invoke('navigation:pop'),
@@ -236,9 +270,18 @@ const toolbox = {
     getBrandIcon: (): Promise<string | null> => ipcRenderer.invoke('launcher:getBrandIcon')
   },
 
-  onNavigateTool: (callback: (id: string) => void): (() => void) => {
+  onNavigateTool: (callback: (id: string, pinState?: PinState) => void): (() => void) => {
 
-    const handler = (_: Electron.IpcRendererEvent, id: string): void => callback(id)
+    const handler = (
+      _: Electron.IpcRendererEvent,
+      payload: string | NavigateToolPayload
+    ): void => {
+      if (typeof payload === 'string') {
+        callback(payload)
+        return
+      }
+      callback(payload.toolId, payload.pinState)
+    }
 
     ipcRenderer.on('navigate-tool', handler)
 

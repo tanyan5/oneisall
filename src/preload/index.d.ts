@@ -29,6 +29,13 @@ import type {
 
 } from '../shared/shankai'
 
+import type {
+  Md2DocxConvertRequest,
+  Md2DocxConvertResult,
+  Md2DocxPresetId,
+  Md2DocxRecentEntry
+} from '../shared/md2docx'
+
 
 
 export interface RegisterResult {
@@ -145,6 +152,28 @@ export interface ToolboxAPI {
 
   }
 
+  md2docx: {
+
+    getPreset: () => Promise<Md2DocxPresetId>
+
+    setPreset: (presetId: Md2DocxPresetId) => Promise<void>
+
+    listRecent: () => Promise<Md2DocxRecentEntry[]>
+
+    pickSource: () => Promise<string | null>
+
+    pickOutput: (defaultPath: string) => Promise<string | null>
+
+    convert: (req: Md2DocxConvertRequest) => Promise<Md2DocxConvertResult>
+
+    openFile: (outputPath: string) => Promise<void>
+
+    revealInFolder: (outputPath: string) => Promise<void>
+
+    resolveDroppedFile: (file: File) => string
+
+  }
+
   navigation: {
 
     pop: () => Promise<NavPopResult>
@@ -201,7 +230,7 @@ export interface ToolboxAPI {
     getBrandIcon: () => Promise<string | null>
   }
 
-  onNavigateTool: (callback: (id: string) => void) => () => void
+  onNavigateTool: (callback: (id: string, pinState?: PinState) => void) => () => void
 
 }
 

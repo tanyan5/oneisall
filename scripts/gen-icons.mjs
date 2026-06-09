@@ -255,6 +255,29 @@ function drawDemoGlyph(canvas, accent) {
   drawLine(canvas, 28, 34, 32, 28, accent, 180, 2)
 }
 
+function drawMd2DocxGlyph(canvas, accent) {
+  // left markdown page (narrow)
+  drawRoundedRectStroke(canvas, 10, 15, 9, 18, 2, GLYPH, 255, 2)
+  drawLine(canvas, 12, 18, 17, 18, accent, 220, 1)
+  drawLine(canvas, 14, 16, 14, 20, accent, 220, 1)
+  drawLine(canvas, 16, 16, 16, 20, accent, 220, 1)
+  drawLine(canvas, 12, 23, 17, 23, accent, 180, 1)
+  drawLine(canvas, 12, 26, 16, 26, accent, 140, 1)
+  drawLine(canvas, 12, 29, 15, 29, accent, 120, 1)
+
+  // conversion arrow
+  drawLine(canvas, 20, 24, 26, 24, accent, 255, 2)
+  drawLine(canvas, 24, 21, 27, 24, accent, 255, 2)
+  drawLine(canvas, 24, 27, 27, 24, accent, 255, 2)
+
+  // right word page (wider)
+  drawRoundedRectStroke(canvas, 29, 13, 10, 20, 2, GLYPH, 255, 2)
+  drawLine(canvas, 31, 18, 37, 18, accent, 200, 1)
+  drawLine(canvas, 31, 22, 37, 22, accent, 200, 1)
+  drawLine(canvas, 31, 26, 37, 26, accent, 180, 1)
+  drawLine(canvas, 31, 30, 35, 30, accent, 160, 1)
+}
+
 function drawHomeGlyph(canvas, accent) {
   drawLine(canvas, 14, 22, 24, 12, GLYPH, 255, 2)
   drawLine(canvas, 24, 12, 34, 22, GLYPH, 255, 2)
@@ -345,6 +368,7 @@ const GLYPH_DRAWERS = {
   clipboard: drawClipboardGlyph,
   shankai: drawShankaiGlyph,
   demo: drawDemoGlyph,
+  md2docx: drawMd2DocxGlyph,
   home: drawHomeGlyph,
   settings: drawSettingsGlyph,
   tray: drawBrandGlyph
@@ -354,6 +378,7 @@ const ICON_DEFS = [
   { id: 'clipboard', accent: '#38bdf8', out: 'plugins/clipboard/icon.png' },
   { id: 'shankai', accent: '#c084fc', out: 'plugins/shankai/icon.png' },
   { id: 'demo', accent: '#4ade80', out: 'plugins/demo/icon.png' },
+  { id: 'md2docx', accent: '#fbbf24', out: 'plugins/md2docx/icon.png' },
   { id: 'home', accent: '#818cf8', out: 'resources/nav/home.png' },
   { id: 'settings', accent: '#94a3b8', out: 'resources/nav/settings.png' },
   { id: 'tray', accent: '#22D3EE', out: 'resources/tray/tray-48.png' }

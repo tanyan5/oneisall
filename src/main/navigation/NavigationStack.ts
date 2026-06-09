@@ -1,5 +1,16 @@
 import { hideLauncher, showLauncher } from '../launcher/LauncherWindow'
-import { ensureUnpinned, hideMainWindow, showMainWindow } from '../window'
+import { clearDismissedUnpinnedToolSession } from './DismissedToolSession'
+import {
+  ensureHubWindow,
+  focusPinnedTool,
+  getHubWindow,
+  getSession,
+  hideHubWindow,
+  hideWindow,
+  showToolInWindow
+} from '../window'
+import type { BrowserWindow } from 'electron'
+import { BrowserWindow as ElectronBrowserWindow } from 'electron'
 
 export type NavSurface = 'home' | 'tool' | 'settings'
 
@@ -15,13 +26,7 @@ export type NavPopResult =
 type ToolOpenFrom = 'launcher' | 'home' | 'shortcut'
 type SettingsOpenFrom = 'tray' | 'shell'
 
-let stack: NavFrame[] = []
-
-export function getNavigationStack(): NavFrame[] {
-  return [...stack]
-}
-
-function pushFrame(frame: NavFrame): void {
+function pushFrame(stack: NavFrame[], frame: NavFrame): void {
   const top = stack[stack.length - 1]
   if (top && top.surface === frame.surface && top.toolId === frame.toolId) {
     return
@@ -29,73 +34,119 @@ function pushFrame(frame: NavFrame): void {
   stack.push(frame)
 }
 
+function resolveUnpinnedTargetWindow(from: ToolOpenFrom): BrowserWindow {
+  const focused = ElectronBrowserWindow.getFocusedWindow()
+  const focusedSession = focused ? getSession(focused) : null
+  if (from === 'home' && focused && focusedSession && !focusedSession.pinned) {
+    return focused
+  }
+  return ensureHubWindow()
+}
+
+export function getNavigationStack(): NavFrame[] {
+  const hub = getHubWindow()
+  const session = getSession(hub)
+  return session ? [...session.navStack] : []
+}
+
 export function navOpenHome(): string {
-  stack = [{ surface: 'home' }]
+  clearDismissedUnpinnedToolSession()
+  const hub = ensureHubWindow()
+  const session = getSession(hub)!
+  session.navStack = [{ surface: 'home' }]
   hideLauncher()
-  showMainWindow('home')
+  showToolInWindow(hub, 'home')
   return 'home'
 }
 
-export function navOpenTool(id: string, from: ToolOpenFrom): string {
-  if (from === 'shortcut') {
-    ensureUnpinned()
+export function navOpenTool(id: string, from: ToolOpenFrom, _currentToolId?: string): string {
+  if ((from === 'shortcut' || from === 'launcher') && focusPinnedTool(id)) {
+    if (from === 'launcher') hideLauncher()
+    return id
   }
+
+  clearDismissedUnpinnedToolSession()
+
+  const targetWin = resolveUnpinnedTargetWindow(from)
+  const session = getSession(targetWin)!
+
   if (from === 'home') {
-    if (stack.length === 0 || stack[stack.length - 1]?.surface !== 'home') {
-      stack = [{ surface: 'home' }]
+    if (session.navStack.length === 0 || session.navStack[session.navStack.length - 1]?.surface !== 'home') {
+      session.navStack = [{ surface: 'home' }]
     }
-    pushFrame({ surface: 'tool', toolId: id })
+    pushFrame(session.navStack, { surface: 'tool', toolId: id })
   } else {
-    stack = [{ surface: 'tool', toolId: id }]
+    session.navStack = [{ surface: 'tool', toolId: id }]
   }
+
   if (from === 'launcher') hideLauncher()
-  showMainWindow(id)
-  return id
+
+  return showToolInWindow(targetWin, id)
 }
 
 export function navOpenSettings(from: SettingsOpenFrom): string {
+  clearDismissedUnpinnedToolSession()
+  const targetWin = from === 'tray' ? ensureHubWindow() : resolveUnpinnedTargetWindow('home')
+  const session = getSession(targetWin)!
+
   if (from === 'tray') {
-    stack = [{ surface: 'settings' }]
+    session.navStack = [{ surface: 'settings' }]
   } else {
-    if (stack.length === 0 || stack[stack.length - 1]?.surface !== 'home') {
-      stack = [{ surface: 'home' }]
+    if (session.navStack.length === 0 || session.navStack[session.navStack.length - 1]?.surface !== 'home') {
+      session.navStack = [{ surface: 'home' }]
     }
-    pushFrame({ surface: 'settings' })
+    pushFrame(session.navStack, { surface: 'settings' })
   }
-  showMainWindow('settings')
+
+  showToolInWindow(targetWin, 'settings')
   return 'settings'
 }
 
-export function navOpenClipboard(): string {
+export function navOpenClipboard(_currentToolId?: string): string {
   return navOpenTool('clipboard', 'shortcut')
 }
 
-export function navPop(): NavPopResult {
-  if (stack.length > 0) stack.pop()
+export function navPop(forWindow: BrowserWindow): NavPopResult {
+  const session = getSession(forWindow)
+  if (!session) {
+    hideWindow(forWindow)
+    showLauncher()
+    return { action: 'show-launcher' }
+  }
 
-  const top = stack[stack.length - 1]
+  if (session.pinned) {
+    return { action: 'navigate', surface: 'tool', toolId: session.toolId }
+  }
+
+  if (session.navStack.length > 0) session.navStack.pop()
+
+  const top = session.navStack[session.navStack.length - 1]
   if (!top) {
-    hideMainWindow()
+    hideWindow(forWindow)
     showLauncher()
     return { action: 'show-launcher' }
   }
 
   if (top.surface === 'home') {
-    showMainWindow('home')
+    showToolInWindow(forWindow, 'home')
     return { action: 'navigate', surface: 'home' }
   }
 
   if (top.surface === 'tool' && top.toolId) {
-    showMainWindow(top.toolId)
+    showToolInWindow(forWindow, top.toolId)
     return { action: 'navigate', surface: 'tool', toolId: top.toolId }
   }
 
   if (top.surface === 'settings') {
-    showMainWindow('settings')
+    showToolInWindow(forWindow, 'settings')
     return { action: 'navigate', surface: 'settings' }
   }
 
-  hideMainWindow()
+  hideWindow(forWindow)
   showLauncher()
   return { action: 'show-launcher' }
+}
+
+export function hideMainWindow(): void {
+  hideHubWindow()
 }
